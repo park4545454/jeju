@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>제주도 애견동반 여행 코스</title>
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
+  <!-- Leaflet JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+  <style>
+    #map {
+      height: 500px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    .tabs {
+      display: flex;
+      cursor: pointer;
+    }
+    .tab {
+      padding: 10px 20px;
+      border: 1px solid #ddd;
+      background-color: #f8f9fa;
+      border-bottom: none;
+      margin-right: 5px;
+      border-radius: 5px 5px 0 0;
+    }
+    .tab.active {
+      background-color: white;
+      border-bottom: 1px solid white;
+      position: relative;
+      z-index: 2;
+    }
+    .category-content {
+      display: none;
+      padding: 20px;
+      border: 1px solid #ddd;
+      margin-top: -1px;
+      position: relative;
+      z-index: 1;
+    }
+    .category-content.active {
+      display: block;
+    }
+    .filter-buttons {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+  <div class="max-w-6xl mx-auto bg-white p-4 md:p-8 rounded-lg shadow-lg">
+    <h1 class="text-2xl md:text-3xl font-bold text-center mb-6">제주도 애견동반 여행 코스</h1>
+    
+    <!-- Map Filter Buttons -->
+    <div class="filter-buttons flex flex-wrap gap-2 mb-4">
+      <button id="show-all" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700">모두 보기</button>
+      <button id="show-restaurants" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500">식당</button>
+      <button id="show-attractions" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">여행지</button>
+      <button id="show-cafes" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500">카페</button>
+      <button id="show-udo" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-500">우도</button>
+    </div>
+    
+    <!-- Map Container -->
+    <div id="map" class="rounded-lg shadow"></div>
+    
+    <!-- Tabs for Categories -->
+    <div class="tabs">
+      <div class="tab active" data-tab="restaurants">식당 (🔴)</div>
+      <div class="tab" data-tab="attractions">여행지 (🔵)</div>
+      <div class="tab" data-tab="cafes">카페 (🟢)</div>
+      <div class="tab" data-tab="udo">우도 (🟡)</div>
+    </div>
+    
+    <!-- Tab Contents -->
+    <!-- 식당 목록 -->
+    <div id="restaurants-list" class="category-content active">
+      <h3 class="text-xl font-bold mb-4">식당 목록 (🔴)</h3>
+      <ol class="list-decimal pl-6 space-y-2">
+        <li><a href="https://naver.me/52RVmA6a" target="_blank" class="text-blue-600 hover:underline">바다를본돼지 서귀포올레시장점</a></li>
+        <li><a href="https://naver.me/5MVz7JCk" target="_blank" class="text-blue-600 hover:underline">둘중문고등어쌈밥</a></li>
+        <li><a href="https://naver.me/F2Zux7nq" target="_blank" class="text-blue-600 hover:underline">소금바치순이네 (우도에서 올때 저녁 포장)</a></li>
+        <li><a href="https://naver.me/GoDGqxey" target="_blank" class="text-blue-600 hover:underline">모메든식당 중문본점</a></li>
+        <li><a href="https://naver.me/FoEUc7Aa" target="_blank" class="text-blue-600 hover:underline">문쏘 제주협재점</a></li>
+        <li><a href="https://naver.me/5MVLZ0HZ" target="_blank" class="text-blue-600 hover:underline">고모네돔베</a></li>
+        <li><a href="https://naver.me/GipBrjRM" target="_blank" class="text-blue-600 hover:underline">제주부엌 고기국수</a></li>
+        <li><a href="https://naver.me/5qDpjVW0" target="_blank" class="text-blue-600 hover:underline">삼거리농원 제주산방산점</a></li>
+        <li><a href="https://naver.me/Fjbngk1R" target="_blank" class="text-blue-600 hover:underline">커뮤니테이블</a></li>
+        <li><a href="https://naver.me/FLy9vMHf" target="_blank" class="text-blue-600 hover:underline">문치비 서귀포신시가시점</a></li>
+        <li><a href="https://naver.me/GsjQuGDM" target="_blank" class="text-blue-600 hover:underline">여기고씨네 제주함덕점</a></li>
+      </ol>
+    </div>
+    
+    <!-- 여행지 목록 -->
+    <div id="attractions-list" class="category-content">
+      <h3 class="text-xl font-bold mb-4">여행지 목록 (🔵)</h3>
+      <ol class="list-decimal pl-6 space-y-2">
+        <li><a href="https://naver.me/513NStWW" target="_blank" class="text-blue-600 hover:underline">비밀의숲</a></li>
+        <li><a href="https://naver.me/xOxHFQkK" target="_blank" class="text-blue-600 hover:underline">새별오름</a></li>
+        <li><a href="https://naver.me/xZVbrKX2" target="_blank" class="text-blue-600 hover:underline">용눈이오름</a></li>
+        <li><a href="https://naver.me/5vct5aUZ" target="_blank" class="text-blue-600 hover:underline">금오름</a></li>
+        <li><a href="https://naver.me/5XJIlPtO" target="_blank" class="text-blue-600 hover:underline">협재해변</a></li>
+        <li><a href="https://naver.me/xoH8AY7q" target="_blank" class="text-blue-600 hover:underline">섭지코지</a></li>
+        <li><a href="https://map.naver.com/p/search/%EB%B3%B4%EB%A1%AC%EC%99%93%20%EC%A0%9C%EC%A3%BC/place/38780397?c=9.00,0,0,0,dh&placePath=%3Fentry%253Dpll" target="_blank" class="text-blue-600 hover:underline">보롬왓</a></li>
+      </ol>
+    </div>
+    
+    <!-- 카페 목록 -->
+    <div id="cafes-list" class="category-content">
+      <h3 class="text-xl font-bold mb-4">카페 목록 (🟢)</h3>
+      <ol class="list-decimal pl-6 space-y-2">
+        <li><a href="https://naver.me/xf5AG0hW" target="_blank" class="text-blue-600 hover:underline">목장카페 밭디</a></li>
+        <li><a href="https://naver.me/5PVaq2s7" target="_blank" class="text-blue-600 hover:underline">어린왕자감귤밭</a></li>
+        <li><a href="https://naver.me/FZ27p7mV" target="_blank" class="text-blue-600 hover:underline">원앤온리</a></li>
+        <li><a href="https://naver.me/5Q37nTIS" target="_blank" class="text-blue-600 hover:underline">카페 귤꽃다락</a></li>
+        <li><a href="https://naver.me/xQe2zwa7" target="_blank" class="text-blue-600 hover:underline">테라도스</a></li>
+        <li><a href="https://naver.me/5uIDQ5qq" target="_blank" class="text-blue-600 hover:underline">명월국민학교</a></li>
+        <li><a href="https://naver.me/xxY2cp1F" target="_blank" class="text-blue-600 hover:underline">레이지펌프</a></li>
+        <li><a href="https://naver.me/59vqaf7O" target="_blank" class="text-blue-600 hover:underline">취하도(감맥슈퍼)</a></li>
+        <li><a href="https://naver.me/FRLNEUSC" target="_blank" class="text-blue-600 hover:underline">소금빵카페 키친오즈</a></li>
+      </ol>
+    </div>
+    
+    <!-- 우도 목록 -->
+    <div id="udo-list" class="category-content">
+      <h3 class="text-xl font-bold mb-4">우도 목록 (🟡)</h3>
+      <p class="mb-4 italic">우도 여행 코스: 산호해변 &gt; 우도봉 &gt; 검멀레해변 &gt; 비양도 &gt; 하고수동해변 &gt; 하우목동항</p>
+      <ol class="list-decimal pl-6 space-y-2">
+        <li><a href="https://naver.me/Fk7w6gUz" target="_blank" class="text-blue-600 hover:underline">문개우도해물라면</a></li>
+        <li><a href="https://naver.me/F6lgvJ8q" target="_blank" class="text-blue-600 hover:underline">우도해녀식당</a></li>
+        <li><a href="https://naver.me/x9BN61gn" target="_blank" class="text-blue-600 hover:underline">섬소나이</a></li>
+        <li><a href="https://naver.me/xGIPsHMf" target="_blank" class="text-blue-600 hover:underline">온오프</a></li>
+        <li><a href="https://naver.me/xwmqlLgD" target="_blank" class="text-blue-600 hover:underline">안녕육지사람</a></li>
+        <li><a href="https://naver.me/5GpdCN9U" target="_blank" class="text-blue-600 hover:underline">해신짬뽕</a></li>
+        <li><a href="https://naver.me/xs3oOYov" target="_blank" class="text-blue-600 hover:underline">검멀레슈퍼</a></li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    // 장소 데이터 정의 (정확한 좌표로 업데이트)
+    const restaurants = [
+      { name: "바다를본돼지 서귀포올레시장점", lat: 33.2446, lng: 126.5690, link: "https://naver.me/52RVmA6a" },
+      { name: "둘중문고등어쌈밥", lat: 33.265117, lng: 126.380695, link: "https://naver.me/5MVz7JCk" },
+      { name: "소금바치순이네", lat: 33.5010, lng: 126.9520, link: "https://naver.me/F2Zux7nq" },
+      { name: "모메든식당 중문본점", lat: 33.257501, lng: 126.453913, link: "https://naver.me/GoDGqxey" },
+      { name: "문쏘 제주협재점", lat: 33.3942, lng: 126.2402, link: "https://naver.me/FoEUc7Aa" },
+      { name: "고모네돔베", lat: 33.473515, lng: 126.709570, link: "https://naver.me/5MVLZ0HZ" },
+      { name: "제주부엌 고기국수", lat: 33.487146, lng: 126.485597, link: "https://naver.me/GipBrjRM" },
+      { name: "삼거리농원 제주산방산점", lat: 33.234292, lng: 126.308269, link: "https://naver.me/5qDpjVW0" },
+      { name: "커뮤니테이블", lat: 33.245088, lng: 126.459293, link: "https://naver.me/Fjbngk1R" },
+      { name: "문치비 서귀포신시가시점", lat: 33.256701, lng: 126.505795, link: "https://naver.me/FLy9vMHf" },
+      { name: "여기고씨네 제주함덕점", lat: 33.5431, lng: 126.6696, link: "https://naver.me/GsjQuGDM" }
+    ];
+
+    const attractions = [
+      { name: "비밀의숲", lat: 33.453730, lng: 126.755661, link: "https://naver.me/513NStWW" },
+      { name: "새별오름", lat: 33.3668, lng: 126.3546, link: "https://naver.me/xOxHFQkK" },
+      { name: "용눈이오름", lat: 33.460719, lng: 126.831649, link: "https://naver.me/xZVbrKX2" },
+      { name: "금오름", lat: 33.3537, lng: 126.3059, link: "https://naver.me/5vct5aUZ" },
+      { name: "협재해변", lat: 33.3939, lng: 126.2394, link: "https://naver.me/5XJIlPtO" },
+      { name: "섭지코지", lat: 33.4311, lng: 126.9274, link: "https://naver.me/xoH8AY7q" },
+      { name: "보롬왓", lat: 33.416650, lng: 126.752908, link: "https://map.naver.com/p/search/%EB%B3%B4%EB%A1%AC%EC%99%93%20%EC%A0%9C%EC%A3%BC/place/38780397?c=9.00,0,0,0,dh&placePath=%3Fentry%253Dpll" }
+    ];
+
+    const cafes = [
+      { name: "목장카페 밭디", lat: 33.407863, lng: 126.772623, link: "https://naver.me/xf5AG0hW" },
+      { name: "어린왕자감귤밭", lat: 33.2843, lng: 126.3714, link: "https://naver.me/5PVaq2s7" },
+      { name: "원앤온리", lat: 33.239224, lng: 126.319375, link: "https://naver.me/FZ27p7mV" },
+      { name: "카페 귤꽃다락", lat: 33.246425, lng: 126.522598, link: "https://naver.me/5Q37nTIS" },
+      { name: "테라도스", lat: 33.452714, lng: 126.342470, link: "https://naver.me/xQe2zwa7" },
+      { name: "명월국민학교", lat: 33.3804, lng: 126.2568, link: "https://naver.me/5uIDQ5qq" },
+      { name: "레이지펌프", lat: 33.467176, lng: 126.309613, link: "https://naver.me/xxY2cp1F" },
+      { name: "취하도(감맥슈퍼)", lat: 33.519259, lng: 126.895309, link: "https://naver.me/59vqaf7O" },
+      { name: "소금빵카페 키친오즈", lat: 33.4086, lng: 126.2498, link: "https://naver.me/FRLNEUSC" }
+    ];
+
+    const udo = [
+      { name: "문개우도해물라면", lat: 33.514339, lng: 126.957048, link: "https://naver.me/Fk7w6gUz" },
+      { name: "우도해녀식당", lat: 33.514814, lng: 126.949009, link: "https://naver.me/F6lgvJ8q" },
+      { name: "섬소나이", lat: 33.513673, lng: 126.957438, link: "https://naver.me/x9BN61gn" },
+      { name: "온오프", lat: 33.513091, lng: 126.961546, link: "https://naver.me/xGIPsHMf" },
+      { name: "안녕육지사람", lat: 33.514907, lng: 126.957184, link: "https://naver.me/xwmqlLgD" },
+      { name: "해신짬뽕", lat: 33.513543, lng: 126.957563, link: "https://naver.me/5GpdCN9U" },
+      { name: "검멀레슈퍼", lat: 33.498931, lng: 126.969924, link: "https://naver.me/xs3oOYov" },
+      { name: "산호해변", lat: 33.502905, lng: 126.943282, link: "#" },
+      { name: "우도봉", lat: 33.491728, lng: 126.965032, link: "#" },
+      { name: "검멀레해변", lat: 33.498078, lng: 126.967221, link: "#" },
+      { name: "하고수동해변", lat: 33.515119, lng: 126.958539, link: "#" },
+      { name: "하우목동항", lat: 33.510288, lng: 126.941911, link: "#" }
+    ];
+
+    // 지도 초기화 및 마커 세팅
+    document.addEventListener('DOMContentLoaded', function() {
+      // 지도 초기화
+      const map = L.map('map').setView([33.3800, 126.5500], 10);
+      
+      // 타일 레이어 추가 (OpenStreetMap)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      
+      // 마커 및 레이어 그룹 생성
+      const restaurantsLayer = L.layerGroup();
+      const attractionsLayer = L.layerGroup();
+      const cafesLayer = L.layerGroup();
+      const udoLayer = L.layerGroup();
+      
+      // 식당 마커 추가 (빨간색)
+      const restaurantIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="background-color: #EF4444; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
+      
+      restaurants.forEach(place => {
+        const marker = L.marker([place.lat, place.lng], { icon: restaurantIcon })
+          .bindPopup(`<strong>${place.name}</strong><br><a href="${place.link}" target="_blank">네이버 지도에서 보기</a>`)
+          .addTo(restaurantsLayer);
+      });
+      
+      // 여행지 마커 추가 (파란색)
+      const attractionIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="background-color: #2563EB; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
+      
+      attractions.forEach(place => {
+        const marker = L.marker([place.lat, place.lng], { icon: attractionIcon })
+          .bindPopup(`<strong>${place.name}</strong><br><a href="${place.link}" target="_blank">네이버 지도에서 보기</a>`)
+          .addTo(attractionsLayer);
+      });
+      
+      // 카페 마커 추가 (초록색)
+      const cafeIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="background-color: #10B981; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
+      
+      cafes.forEach(place => {
+        const marker = L.marker([place.lat, place.lng], { icon: cafeIcon })
+          .bindPopup(`<strong>${place.name}</strong><br><a href="${place.link}" target="_blank">네이버 지도에서 보기</a>`)
+          .addTo(cafesLayer);
+      });
+      
+      // 우도 마커 추가 (노란색)
+      const udoIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="background-color: #F59E0B; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
+      
+      udo.forEach(place => {
+        const marker = L.marker([place.lat, place.lng], { icon: udoIcon })
+          .bindPopup(`<strong>${place.name}</strong>${place.link !== '#' ? `<br><a href="${place.link}" target="_blank">네이버 지도에서 보기</a>` : ''}`)
+          .addTo(udoLayer);
+      });
+      
+      // 초기 지도에 모든 레이어 추가
+      restaurantsLayer.addTo(map);
+      attractionsLayer.addTo(map);
+      cafesLayer.addTo(map);
+      udoLayer.addTo(map);
+      
+      // 필터링 버튼 이벤트 처리
+      document.getElementById('show-all').addEventListener('click', function() {
+        map.addLayer(restaurantsLayer);
+        map.addLayer(attractionsLayer);
+        map.addLayer(cafesLayer);
+        map.addLayer(udoLayer);
+      });
+      
+      document.getElementById('show-restaurants').addEventListener('click', function() {
+        map.removeLayer(restaurantsLayer);
+        map.removeLayer(attractionsLayer);
+        map.removeLayer(cafesLayer);
+        map.removeLayer(udoLayer);
+        map.addLayer(restaurantsLayer);
+      });
+      
+      document.getElementById('show-attractions').addEventListener('click', function() {
+        map.removeLayer(restaurantsLayer);
+        map.removeLayer(attractionsLayer);
+        map.removeLayer(cafesLayer);
+        map.removeLayer(udoLayer);
+        map.addLayer(attractionsLayer);
+      });
+      
+      document.getElementById('show-cafes').addEventListener('click', function() {
+        map.removeLayer(restaurantsLayer);
+        map.removeLayer(attractionsLayer);
+        map.removeLayer(cafesLayer);
+        map.removeLayer(udoLayer);
+        map.addLayer(cafesLayer);
+      });
+      
+      document.getElementById('show-udo').addEventListener('click', function() {
+        map.removeLayer(restaurantsLayer);
+        map.removeLayer(attractionsLayer);
+        map.removeLayer(cafesLayer);
+        map.removeLayer(udoLayer);
+        map.addLayer(udoLayer);
+        map.setView([33.5025, 126.9550], 13); // 우도 중심으로 이동
+      });
+      
+      // 탭 전환 기능
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          // 모든 탭과 컨텐츠에서 active 클래스 제거
+          document.querySelectorAll('.tab, .category-content').forEach(el => {
+            el.classList.remove('active');
+          });
+          
+          // 클릭된 탭에 active 클래스 추가
+          tab.classList.add('active');
+          
+          // 해당 탭의 컨텐츠에 active 클래스 추가
+          const tabId = tab.getAttribute('data-tab');
+          document.getElementById(`${tabId}-list`).classList.add('active');
+        });
+      });
+    });
+  </script>
+</body>
+</html>
